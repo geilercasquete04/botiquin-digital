@@ -75,8 +75,11 @@
   function sincronizarFab() {
     if (!fab) return;
     // Se oculta si el inventario vacío ya ofrece su propio botón.
-    const ctaVacio = document.querySelector('#inv-rows [data-add-first]');
-    fab.hidden = pestanaActiva() !== 'inventario' || !formulario.hidden || Boolean(ctaVacio);
+    const pestana = pestanaActiva();
+    const ctaVacio = document.querySelector('#inv-rows [data-add-first], #dose-agenda [data-nuevo-tx]');
+    const txAbierto = document.getElementById('tx-form') && !document.getElementById('tx-form').hidden;
+    fab.hidden = pestana !== 'inventario' || !formulario.hidden || txAbierto ||
+      Boolean(ctaVacio);
   }
 
   if (fab) {

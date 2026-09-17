@@ -15,6 +15,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="botiquin-plus.css">
   <link rel="stylesheet" href="botiquin-app.css">
+  <link rel="stylesheet" href="botiquin-pro.css">
 </head>
 <body>
   <div class="app-shell">
@@ -26,6 +27,8 @@
       <nav class="sidebar__nav" aria-label="Secciones principales">
         <button class="nav-item is-active" data-tab="inventario"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 10h16M10 4v16" stroke="currentColor" stroke-width="1.5"/></svg>Inventario</button>
         <button class="nav-item" data-tab="checklist"><svg viewBox="0 0 24 24" fill="none"><path d="m8.5 12 2.2 2.2 4.8-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><rect x="3.5" y="3.5" width="17" height="17" rx="2.5" stroke="currentColor" stroke-width="1.5"/></svg>Checklist ideal</button>
+        <button class="nav-item" data-tab="tomas"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M12 9.5V13l2.5 1.5M9 3h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Tomas y alarmas <span class="tab-badge" hidden></span></button>
+        <button class="nav-item" data-tab="diccionario"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5v-13ZM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5v-13Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Diccionario</button>
         <button class="nav-item nav-item--plus" data-tab="plus"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5 14.4 8l5 .8-3.6 3.6.8 5-4.6-2.4-4.6 2.4.8-5L4.6 8.8l5-.8L12 3.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Botiquín Plus <span>PLUS</span></button>
       </nav>
       <button id="install-btn" class="install-btn" type="button" hidden><svg viewBox="0 0 24 24" fill="none"><path d="M12 4v10m0 0 3.5-3.5M12 14l-3.5-3.5M5 17v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Instalar app</span></button>
@@ -47,6 +50,13 @@
         <div class="title-line"><div><h1>Inventario de medicamentos en casa</h1><p class="muted">Consulta, organiza y mantén al día los elementos de tu botiquín.</p></div><button id="toggle-form-btn" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Agregar producto</button></div>
         <div class="summary-cards" aria-label="Resumen de inventario"><article><span>Productos registrados</span><strong id="count-total">0</strong></article><article><span>Disponibles</span><strong id="count-available">0</strong></article><article><span>Requieren atención</span><strong id="count-attention">0</strong></article></div>
         <aside class="ad-slot" data-ad-slot aria-label="Ejemplo de anuncio no invasivo"><span class="ad-slot__label">PATROCINADO</span><div class="ad-slot__icon"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h3l7-5v10l-7-5H5a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2Zm12 3.5 1.5 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><strong>Espacio para aliado de bienestar</strong><p>Ejemplo de publicidad discreta, sin interrumpir el uso de la aplicación.</p></div><button class="ad-slot__action" type="button">Conocer más</button></aside>
+        <div class="filter-chips" role="group" aria-label="Filtros rápidos">
+          <button type="button" class="day-chip is-on" data-chip="">Todos</button>
+          <button type="button" class="day-chip" data-chip="ok">En orden</button>
+          <button type="button" class="day-chip" data-chip="soon">Por vencer</button>
+          <button type="button" class="day-chip" data-chip="expired">Vencidos</button>
+          <button type="button" class="day-chip" data-chip="low">Escasos</button>
+        </div>
         <div class="toolbar"><label class="search-field"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="5.8" stroke="currentColor" stroke-width="1.6"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input id="search-input" type="search" placeholder="Buscar por nombre, categoría o ubicación"></label><select id="status-filter" aria-label="Filtrar por estado"><option value="">Todos los estados</option><option value="expired">Vencidos</option><option value="soon">Por vencer</option><option value="low">Existencias bajas</option><option value="available">Disponibles</option></select></div>
         <div class="data-table"><div class="data-table__head inv-cols"><span>Producto</span><span>Ubicación</span><span>Vencimiento</span><span>Existencias</span><span>Categoría</span><span></span></div><div id="inv-rows"></div></div>
         <form id="inv-form" class="rx-form" hidden>
@@ -54,10 +64,51 @@
           <input id="f-id" type="hidden">
           <div class="rx-form__row"><label class="field field--grow"><span>Nombre *</span><input id="f-nombre" placeholder="Ej. Paracetamol 500 mg" required autocomplete="off"></label><label class="field"><span>Forma</span><select id="f-forma"></select></label><label class="field"><span>Categoría</span><select id="f-categoria"></select></label></div>
           <div class="rx-form__row"><label class="field"><span>Cantidad actual *</span><input id="f-cantidad" type="number" min="0" step="1" placeholder="10" required></label><label class="field"><span>Unidad</span><select id="f-unidad"><option>tabletas</option><option>cápsulas</option><option>mL</option><option>gotas</option><option>aplicaciones</option><option>unidades</option></select></label><label class="field"><span>Avisar si quedan menos de</span><input id="f-umbral" type="number" min="0" step="1" value="3"></label></div>
-          <div class="rx-form__row"><label class="field"><span>Fecha de vencimiento</span><input id="f-vencimiento" type="date"></label><label class="field"><span>Ubicación</span><select id="f-ubicacion"></select></label><label class="field"><span>Uso</span><select id="f-uso"></select></label></div>
+          <div class="rx-form__row"><label class="field"><span>Fecha de vencimiento</span><input id="f-vencimiento" type="date"><span class="date-shortcuts"><button type="button" data-meses="6">+6 meses</button><button type="button" data-meses="12">+1 año</button><button type="button" data-meses="24">+2 años</button></span></label><label class="field"><span>Ubicación</span><select id="f-ubicacion"></select></label><label class="field"><span>Uso</span><select id="f-uso"></select></label></div>
           <label class="field field--grow"><span>Notas</span><input id="f-notas" placeholder="Ej. Uso personal, conservar en lugar fresco"></label>
           <div class="rx-form__actions"><button type="submit" class="btn btn-primary">Guardar producto</button><button type="button" id="discard-form-btn" class="btn btn-ghost">Cancelar</button></div>
         </form>
+      </section>
+      <section id="panel-tomas" class="panel">
+        <p class="content__crumb">Botiquín / Tomas y alarmas</p>
+        <div class="title-line">
+          <div><h1>Tus tomas de hoy</h1><p class="muted">Programa los horarios de cada tratamiento y ve marcando las tomas. Si vinculas el recordatorio a un producto, la cantidad se descuenta sola del inventario.</p></div>
+          <button id="add-tx-btn" class="btn btn-primary" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Nuevo recordatorio</button>
+        </div>
+        <div id="dose-summary" class="summary-cards" aria-label="Resumen de tomas"></div>
+        <div id="notif-banner" class="notif-banner" hidden></div>
+        <div id="dose-agenda" class="dose-agenda"></div>
+        <h2 class="section-heading">Tratamientos programados</h2>
+        <div id="tx-list" class="data-table"></div>
+
+        <form id="tx-form" class="rx-form" hidden>
+          <div class="form-title"><div><h2 id="tx-heading">Nuevo recordatorio</h2><p>Define a qué hora y qué días debe sonar la alarma.</p></div><button id="tx-cancel" type="button" class="icon-button" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button></div>
+          <input id="tx-id" type="hidden">
+          <div class="rx-form__row">
+            <label class="field field--grow"><span>Nombre del tratamiento *</span><input id="tx-nombre" placeholder="Ej. Amoxicilina de Sara" required autocomplete="off"></label>
+            <label class="field"><span>Dosis por toma</span><input id="tx-dosis" placeholder="Ej. 1 tableta"></label>
+          </div>
+          <div class="rx-form__row">
+            <label class="field field--grow"><span>Producto del inventario</span><select id="tx-item"></select></label>
+            <label class="field"><span>Unidades a descontar</span><input id="tx-unidades" type="number" min="0" step="1" value="1"></label>
+          </div>
+          <label class="check-line"><input id="tx-descontar" type="checkbox" checked><span>Descontar del inventario cada vez que marque la toma</span></label>
+          <div class="field"><span>Horas de toma</span><div id="tx-horas" class="hour-list"></div><button type="button" id="add-hour" class="btn btn-ghost btn-sm">+ Agregar hora</button></div>
+          <div class="field"><span>Días de la semana</span><div id="tx-dias" class="day-list"></div></div>
+          <div class="rx-form__row">
+            <label class="field"><span>Desde</span><input id="tx-inicio" type="date"></label>
+            <label class="field"><span>Hasta (opcional)</span><input id="tx-fin" type="date"></label>
+            <label class="field field--grow"><span>Nota</span><input id="tx-nota" placeholder="Ej. Con el desayuno"></label>
+          </div>
+          <div class="rx-form__actions"><button type="submit" class="btn btn-primary">Guardar recordatorio</button><button type="button" class="btn btn-ghost" onclick="document.getElementById('tx-cancel').click()">Cancelar</button></div>
+        </form>
+      </section>
+      <section id="panel-diccionario" class="panel">
+        <p class="content__crumb">Botiquín / Diccionario</p>
+        <div class="title-line"><div><h1>Diccionario de medicamentos</h1><p class="muted">Para qué sirve cada cosa que tienes en casa, cómo se llama en genérico y qué precauciones vale la pena conocer.</p></div></div>
+        <div class="dic-warning" role="note"><strong>Información general, no una indicación médica.</strong> A propósito no incluye dosis: dependen de la edad, el peso y de otros medicamentos que la persona tome. Ante la duda, consulta a tu médico o farmaceuta. En caso de intoxicación, llama a la línea de toxicología de tu país.</div>
+        <div class="toolbar"><label class="search-field"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="5.8" stroke="currentColor" stroke-width="1.6"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input id="dic-search" type="search" placeholder="Buscar por nombre, marca o síntoma"></label><span id="dic-count" class="muted" style="align-self:center"></span></div>
+        <div id="dic-results" class="dic-grid"></div>
       </section>
       <section id="panel-checklist" class="panel">
         <p class="content__crumb">Botiquín / Checklist ideal</p><h1>Checklist de botiquín ideal</h1><p class="muted intro">Una guía de referencia para revisar tu botiquín doméstico. Los elementos del inventario se detectan automáticamente.</p>
@@ -67,14 +118,16 @@
       </section>
       <section id="panel-plus" class="panel">
         <p class="content__crumb">Botiquín / Plus</p><div class="plus-hero"><div><span class="plus-chip">BOTIQUÍN PLUS</span><h1>Un poco más de control,<br>sin complicarlo.</h1><p>Herramientas avanzadas para acompañar el cuidado del hogar y mantener una visión clara de tu inventario.</p><button id="export-btn" class="btn btn-plus"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4v10m0 0 4-4m-4 4-4-4M5 18v2h14v-2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Exportar inventario CSV</button></div><div class="plus-hero__art" aria-hidden="true"><svg viewBox="0 0 260 230" fill="none"><rect x="35" y="30" width="165" height="165" rx="24" stroke="currentColor" stroke-width="1.25"/><path d="M117.5 70v85M75 112.5h85" stroke="currentColor" stroke-width="12" stroke-linecap="round"/><circle cx="211" cy="53" r="20" fill="currentColor" fill-opacity=".15"/><path d="M211 44v18m-9-9h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div></div>
-        <div class="plus-grid"><article class="plus-card"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9m5 10V5m5 14v-7m5 7V8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M3 19h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><h2>Indicadores claros</h2><p id="plus-insight">Aún no hay productos para analizar.</p></article><article class="plus-card"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.67M4 4v4.67h4.67" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 8v4l2.7 1.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><h2>Actividad reciente</h2><ul id="history-list" class="history-list"></ul></article><article class="plus-card plus-card--notice"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Recordatorios demo</h2><p>Activa la vista de recordatorios para mostrar cómo se vería esta función Plus.</p><label class="setting-line"><span>Resumen semanal</span><button id="weekly-toggle" class="switch switch--light" type="button" role="switch" aria-checked="false" aria-label="Activar resumen semanal"><span></span></button></label></article></div>
+        <div class="plus-grid"><article class="plus-card"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V9m5 10V5m5 14v-7m5 7V8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M3 19h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><h2>Indicadores claros</h2><p id="plus-insight">Aún no hay productos para analizar.</p></article><article class="plus-card"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.67M4 4v4.67h4.67" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 8v4l2.7 1.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><h2>Actividad reciente</h2><ul id="history-list" class="history-list"></ul></article><article class="plus-card plus-card--notice"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Recordatorios de tomas</h2><p>Programa horarios en la pestaña Tomas y el celular te avisa. Al marcar la toma se descuenta del inventario.</p><label class="setting-line"><span>Resumen semanal</span><button id="weekly-toggle" class="switch switch--light" type="button" role="switch" aria-checked="false" aria-label="Activar resumen semanal"><span></span></button></label></article></div>
         <section class="plans-section"><div class="plans-section__heading"><div><span class="section-kicker">PLANES DEMOSTRATIVOS</span><h2>Elige la experiencia que quieres mostrar</h2></div><p>Los cambios son locales y sirven para presentar el modelo gratuito y las mejoras de pago.</p></div><div class="plans-grid"><button class="plan-card" type="button" data-plan="free"><span class="plan-card__eyebrow">ESENCIAL</span><h3>Gratis</h3><p>Lo básico para organizar el botiquín del hogar.</p><ul><li>Inventario y checklist</li><li>Alertas de vencimiento</li><li>Publicidad discreta</li></ul><span class="plan-card__button">Usar en demo</span></button><button class="plan-card plan-card--featured" type="button" data-plan="plus"><span class="plan-card__ribbon">RECOMENDADO</span><span class="plan-card__eyebrow">BOTIQUÍN PLUS</span><h3>Plus</h3><p>Una experiencia enfocada en seguimiento y tranquilidad.</p><ul><li>Sin publicidad</li><li>Historial y exportación</li><li>Recordatorios inteligentes</li></ul><span class="plan-card__button">Mostrar Plus</span></button><button class="plan-card" type="button" data-plan="family"><span class="plan-card__eyebrow">FAMILIAR</span><h3>Familia</h3><p>Para quienes quieren organizar varios espacios de cuidado.</p><ul><li>Todo lo de Plus</li><li>Varios botiquines</li><li>Respaldo entre dispositivos</li></ul><span class="plan-card__button">Mostrar Familiar</span></button></div></section>
         <p class="plus-note">Botiquín Digital organiza información. No diagnostica, prescribe ni sustituye la orientación de profesionales de la salud.</p>
+              <div id="plus-extras" class="plus-grid plus-grid--extras"></div>
       </section>
     </main>
   </div>
   <nav class="app-tabbar" aria-label="Secciones de la app">
     <button class="nav-item app-tab is-active" data-tab="inventario" type="button"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4 10h16M10 4v16" stroke="currentColor" stroke-width="1.6"/></svg><span>Inventario</span></button>
+    <button class="nav-item app-tab" data-tab="tomas" type="button"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M12 9.5V13l2.5 1.5M9 3h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Tomas</span><i class="tab-badge" hidden></i></button>
     <button class="nav-item app-tab" data-tab="checklist" type="button"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="m8.4 12 2.3 2.3 4.9-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Checklist</span></button>
     <button class="nav-item app-tab" data-tab="plus" type="button"><svg viewBox="0 0 24 24" fill="none"><path d="m12 3.6 2.4 4.5 5 .8-3.6 3.6.8 5-4.6-2.4-4.6 2.4.8-5L4.6 8.9l5-.8L12 3.6Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Plus</span></button>
   </nav>
@@ -84,6 +137,6 @@
     <button id="ios-tip-close" type="button" aria-label="Cerrar aviso">Entendido</button>
   </div>
   <div id="toast" class="toast" role="status" hidden></div>
-  <script src="botiquin-plus-data.js"></script><script src="botiquin-plus.js"></script><script src="botiquin-app.js"></script>
+  <script src="botiquin-plus-data.js"></script><script src="botiquin-pro-data.js"></script><script src="botiquin-plus.js"></script><script src="botiquin-pro.js"></script><script src="botiquin-app.js"></script>
 </body>
 </html>

@@ -14,6 +14,9 @@ pestañas abajo y funciona sin internet.
 | `botiquin-plus.js` | Tu JS, con la navegación falsa de Android retirada |
 | `botiquin-app.js` | **Nuevo.** Instalación, modo sin conexión, botón flotante |
 | `botiquin-plus-data.js` | Sin cambios |
+| `botiquin-pro.css` | **Nuevo.** Tomas, diccionario, modo oscuro, tarjetas de producto |
+| `botiquin-pro.js` | **Nuevo.** Alarmas, diccionario, lista de compras, respaldo |
+| `botiquin-pro-data.js` | **Nuevo.** Los 40 medicamentos del diccionario |
 | `manifest.webmanifest` | **Nuevo.** Nombre, ícono y colores de la app |
 | `sw.js` | **Nuevo.** Guarda la app para abrirla sin conexión |
 | `icons/` | **Nuevo.** Íconos de 192, 512 y 180 px |
@@ -60,3 +63,29 @@ Tu CSS definía `.rx-form { display: flex }`, lo cual anulaba el atributo
 `hidden`: el formulario de "Agregar producto" quedaba siempre visible al final
 de la página aunque el código intentara cerrarlo. Quedó corregido con una regla
 en `botiquin-app.css`.
+
+## Qué hay en cada pestaña
+
+- **Inventario**: chips de filtro rápido, botones − y + para ajustar cantidades
+  sin abrir el formulario, y cada producto como tarjeta en el celular.
+- **Tomas**: recordatorios con hora y días. Al marcar una toma se descuenta del
+  inventario si el recordatorio está vinculado a un producto. Muestra
+  adherencia de los últimos 7 días.
+- **Checklist**: igual que antes.
+- **Plus**: lista de compras automática, adherencia, respaldo en JSON y
+  selector de tema claro/oscuro/automático.
+- **Diccionario**: 40 medicamentos y elementos con para qué sirven, nombres
+  comerciales y precauciones. No incluye dosis a propósito.
+
+## Sobre las alarmas
+
+Las notificaciones se piden con permiso del navegador y suenan a la hora
+programada mientras la app esté abierta o en segundo plano. Si el sistema
+cierra la app por completo, el aviso no salta: al volver a abrirla verás las
+tomas atrasadas marcadas en rojo. Para alarmas garantizadas con la app cerrada
+hace falta un servidor de notificaciones push o una app nativa.
+
+## Para editar el diccionario
+
+Abre `botiquin-pro-data.js`. Cada entrada tiene el mismo formato y puedes
+agregar las que quieras siguiendo el patrón.

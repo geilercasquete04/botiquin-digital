@@ -1,0 +1,318 @@
+/* ============================================================
+   Botiquín Digital — estilos de las funciones Plus
+   Tomas, diccionario, lista de compras, modo oscuro y ajustes
+   de interfaz. Se carga después de botiquin-app.css.
+   ============================================================ */
+
+/* ---------- Piezas reutilizables ---------- */
+.btn-sm { padding: 7px 11px; font-size: .75rem; border-radius: 7px; }
+.section-heading { margin: 26px 0 10px; font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; color: var(--soft); }
+
+.count-pop { animation: count-pop .42s cubic-bezier(.2, .9, .3, 1.2); }
+@keyframes count-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.16); color: var(--accent); }
+  100% { transform: scale(1); }
+}
+
+.day-chip {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: .76rem;
+  font-weight: 650;
+  transition: .16s ease;
+}
+.day-chip:hover { border-color: var(--accent); color: var(--accent); }
+.day-chip.is-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 750;
+}
+
+.filter-chips { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 13px; }
+
+/* ---------- Ajuste rápido de cantidad ---------- */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px;
+  background: var(--surface);
+  margin-bottom: 5px;
+}
+.stepper__btn {
+  width: 26px; height: 26px;
+  border: 0; border-radius: 50%;
+  background: var(--hover);
+  color: var(--accent);
+  font-size: 1rem; line-height: 1; font-weight: 800;
+  display: grid; place-items: center;
+}
+.stepper__btn:hover { background: var(--accent); color: #fff; }
+.stepper__value { min-width: 26px; text-align: center; font-weight: 750; font-size: .82rem; }
+
+/* ---------- Atajos de fecha en el formulario ---------- */
+.date-shortcuts { display: flex; gap: 5px; margin-top: 5px; }
+.date-shortcuts button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 4px 7px;
+  font-size: .67rem;
+  font-weight: 650;
+}
+.date-shortcuts button:hover { border-color: var(--accent); color: var(--accent); }
+
+.check-line {
+  display: flex; align-items: center; gap: 9px;
+  font-size: .79rem; color: var(--muted);
+}
+.check-line input { width: 17px; height: 17px; accent-color: var(--accent); }
+
+/* ---------- Tomas ---------- */
+.notif-banner {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  border: 1px solid #dcd3ff;
+  background: linear-gradient(95deg, #f7f5ff, #f1eeff);
+  color: #3f3480;
+  border-radius: 11px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  font-size: .8rem;
+}
+.notif-banner button { margin-left: auto; }
+
+.dose-agenda { display: grid; gap: 10px; }
+.dose-card {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 14px 16px;
+  box-shadow: 0 8px 20px rgba(26, 65, 76, .045);
+  transition: border-color .2s, opacity .2s;
+}
+.dose-card__time strong { display: block; font-size: .95rem; letter-spacing: -.02em; }
+.dose-card__time span { font-size: .68rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.dose-card__actions { display: flex; gap: 7px; }
+.dose-card.is-late { border-left-color: var(--danger); }
+.dose-card.is-late .dose-card__time span { color: var(--danger); }
+.dose-card.is-tomada { border-left-color: var(--success); opacity: .62; }
+.dose-card.is-tomada .product-name { text-decoration: line-through; }
+.dose-card.is-omitida { border-left-color: var(--soft); opacity: .55; }
+
+.tx-row { grid-template-columns: 1.6fr 1.2fr .6fr 96px; }
+.hour-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.hour-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 3px 5px 3px 8px;
+}
+.hour-chip input { border: 0; background: transparent; font-size: .83rem; font-weight: 650; padding: 4px 0; }
+.hour-chip input:focus { outline: 0; }
+.hour-chip button {
+  border: 0; background: var(--hover); color: var(--muted);
+  border-radius: 6px; width: 22px; height: 22px; font-size: .95rem; line-height: 1;
+}
+.hour-chip button:hover { background: var(--danger-bg); color: var(--danger); }
+.day-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.day-list .day-chip { padding: 6px 10px; font-size: .72rem; }
+
+.tab-badge {
+  display: inline-grid; place-items: center;
+  min-width: 17px; height: 17px; padding: 0 4px;
+  border-radius: 999px;
+  background: var(--danger); color: #fff;
+  font-size: .6rem; font-weight: 800; font-style: normal;
+  margin-left: auto;
+}
+.tab-badge[hidden] { display: none; }
+
+/* ---------- Diccionario ---------- */
+.dic-warning {
+  border: 1px solid #f0dcb0;
+  background: linear-gradient(95deg, #fffaf0, #fff6e4);
+  color: #7a5a17;
+  border-radius: 11px;
+  padding: 13px 16px;
+  margin-bottom: 16px;
+  font-size: .79rem;
+  line-height: 1.5;
+}
+.dic-warning strong { color: #634608; }
+
+.dic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(305px, 1fr)); gap: 13px; }
+.dic-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(26, 65, 76, .04);
+}
+.dic-card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.dic-card h2 { margin-bottom: 2px; }
+.dic-card__cat { font-size: .69rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); margin: 11px 0 9px; }
+.dic-card p { font-size: .79rem; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+.dic-card p strong { color: var(--ink); }
+.dic-card__warn {
+  border-left: 3px solid var(--warning);
+  background: var(--warning-bg);
+  border-radius: 0 8px 8px 0;
+  padding: 9px 11px;
+  color: var(--warning) !important;
+}
+.dic-card__warn strong { color: var(--warning) !important; }
+.dic-card .btn { margin-top: 4px; }
+
+/* ---------- Extras del panel Plus ---------- */
+.plus-grid--extras { grid-template-columns: repeat(2, 1fr); align-items: start; }
+.plus-card--wide { grid-column: 1 / -1; }
+.card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.shop-list { list-style: none; margin: 13px 0 12px; padding: 0; display: grid; gap: 7px; }
+.shop-list li {
+  display: flex; justify-content: space-between; gap: 12px; align-items: baseline;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 7px;
+  font-size: .8rem;
+}
+.shop-list li:last-child { border-bottom: 0; }
+.shop-list span { color: var(--muted); font-size: .72rem; text-align: right; flex: 0 0 auto; }
+.theme-picker { display: flex; gap: 7px; margin-top: 14px; flex-wrap: wrap; }
+
+/* ============================================================
+   Móvil
+   ============================================================ */
+@media (max-width: 800px) {
+  /* En Tomas el botón vive en el encabezado, así el flotante no
+     tapa los botones "Tomada" y "Omitir" de las tarjetas. */
+  #panel-tomas .title-line { display: block; }
+  #panel-tomas .title-line > .btn { display: inline-flex; margin-top: 14px; }
+
+  .app-tabbar .app-tab { position: relative; }
+  .app-tabbar .app-tab svg { width: 21px; height: 21px; }
+  .app-tabbar .app-tab span { font-size: .61rem; }
+  .app-tabbar .tab-badge {
+    position: absolute;
+    top: 3px;
+    left: 50%;
+    margin-left: 5px;
+  }
+
+  /* Cada producto como tarjeta legible en lugar de fila apretada */
+  .data-table { border: 0; background: transparent; box-shadow: none; }
+  .inv-cols {
+    grid-template-columns: minmax(0, 1fr) auto;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    margin-bottom: 10px;
+    padding: 14px 15px;
+    box-shadow: 0 6px 16px rgba(26, 65, 76, .05);
+    row-gap: 9px;
+  }
+  .inv-cols > div[data-col="Ubicación"],
+  .inv-cols > div[data-col="Categoría"] { display: none; }
+  .inv-cols > div[data-col="Vencimiento"] { grid-column: 1; }
+  .inv-cols > div[data-col="Existencias"] {
+    grid-column: 2; grid-row: 2;
+    display: flex; align-items: center; gap: 8px; justify-content: flex-end;
+  }
+  .inv-cols .stepper { margin-bottom: 0; }
+  .row-actions { grid-column: 2; grid-row: 1; display: flex; gap: 2px; }
+
+  .dose-card {
+    grid-template-columns: 76px minmax(0, 1fr);
+    row-gap: 10px;
+    padding: 13px 14px;
+  }
+  .dose-card__actions { grid-column: 1 / -1; }
+  .dose-card__actions .btn { flex: 1; }
+  .tx-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .tx-row > div:nth-child(2) { grid-column: 1; font-size: .72rem; }
+  .tx-row > div:nth-child(3) { grid-column: 2; grid-row: 2; text-align: right; }
+
+  .dic-grid { grid-template-columns: 1fr; }
+  .plus-grid--extras { grid-template-columns: 1fr; }
+  .notif-banner button { margin-left: 0; width: 100%; }
+  .filter-chips { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 3px; scrollbar-width: none; }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .day-chip { white-space: nowrap; }
+  .toolbar { flex-wrap: wrap; }
+  .toolbar select { height: 41px; flex: 1; }
+}
+
+@media (max-width: 430px) {
+  .app-tabbar .app-tab span { font-size: .58rem; }
+  .dose-card { grid-template-columns: 68px minmax(0, 1fr); gap: 10px; }
+}
+
+/* ============================================================
+   Modo oscuro
+   ============================================================ */
+body.tema-oscuro {
+  --bg: #0c1519;
+  --surface: #141f25;
+  --sidebar: #0e1b21;
+  --sidebar-2: #0a151a;
+  --hover: #1b2a31;
+  --border: #243940;
+  --ink: #e6f1f2;
+  --muted: #9bb1b7;
+  --soft: #7d9299;
+  --accent: #3cc2b4;
+  --accent-dark: #29a396;
+  --accent-soft: #10312f;
+  --danger: #f08a90;
+  --danger-bg: #3a1f22;
+  --warning: #e8b765;
+  --warning-bg: #372c12;
+  --success: #62c79c;
+  --success-bg: #102e24;
+  --plus: #a596ff;
+  --plus-soft: #241f3d;
+  background: radial-gradient(circle at 94% 0, #12302f 0, transparent 32%), var(--bg);
+  color: var(--ink);
+}
+body.tema-oscuro .data-table__head { background: #101b20; }
+body.tema-oscuro .data-row:hover { background: var(--hover); }
+body.tema-oscuro .btn-ghost,
+body.tema-oscuro .field input,
+body.tema-oscuro .field select,
+body.tema-oscuro .search-field,
+body.tema-oscuro .toolbar select,
+body.tema-oscuro .checklist-check,
+body.tema-oscuro .hour-chip input { background: var(--surface); color: var(--ink); }
+body.tema-oscuro .btn-ghost:hover { background: var(--hover); }
+body.tema-oscuro .rx-form { background: #101b21; }
+body.tema-oscuro .app-tabbar { background: rgba(14, 27, 33, .95); }
+body.tema-oscuro .rx-form:not([hidden]),
+body.tema-oscuro .rx-form__actions { background: #101b21; }
+body.tema-oscuro .rx-form:not([hidden])::before { background: #2c4149; }
+body.tema-oscuro .notif-banner { background: #1d1a33; border-color: #322c57; color: #cdc3ff; }
+body.tema-oscuro .dic-warning { background: #2a2312; border-color: #46391a; color: #e2c485; }
+body.tema-oscuro .dic-warning strong { color: #f0d9a4; }
+body.tema-oscuro .ad-slot { background: #14231f; border-color: #21382f; color: #a9c6bd; }
+body.tema-oscuro .ad-slot strong { color: #d6ece5; }
+body.tema-oscuro .ad-slot__action { background: var(--surface); border-color: #2a4a42; color: #6fd4c2; }
+body.tema-oscuro .install-btn { background: var(--accent); color: #03201d; }
+body.tema-oscuro .form-shade { background: rgba(0, 0, 0, .6); }
+
+/* El aviso flotante invertía sus colores en modo oscuro */
+body.tema-oscuro .toast { background: #24363d; color: var(--ink); }
+
+/* Los chips de filtro reemplazan al antiguo desplegable de estados.
+   El <select> se conserva oculto porque el resto del código lo lee. */
+#panel-inventario .toolbar select { display: none; }

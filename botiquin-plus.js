@@ -45,13 +45,35 @@ function clearForm(){ byId('inv-form').reset(); byId('f-id').value = ''; byId('f
 function closeForm(){ byId('inv-form').hidden = true; clearForm(); }
 function openForm(item){ clearForm(); if(item){ byId('form-heading').textContent = 'Editar producto'; byId('f-id').value = item.id; byId('f-nombre').value = item.nombre; byId('f-forma').value = item.forma || FORMAS[0]; byId('f-categoria').value = item.categoria || CATEGORIAS[0]; byId('f-cantidad').value = item.cantidad; byId('f-unidad').value = item.unidad || 'unidades'; byId('f-umbral').value = item.umbralBajo ?? 3; byId('f-vencimiento').value = item.vencimiento || ''; byId('f-ubicacion').value = item.ubicacion || UBICACIONES[0]; byId('f-uso').value = item.uso || USOS[0]; byId('f-notas').value = item.notas || ''; } byId('inv-form').hidden = false; byId('inv-form').scrollIntoView({behavior:'smooth',block:'nearest'}); byId('f-nombre').focus(); }
 
+// Un producto "requiere atención" una sola vez, aunque tenga varios
+// problemas a la vez (vencido y escaso, por ejemplo).
+function needsAttention(item){
+  return ['expired','soon'].includes(expiration(item)) || ['low','out'].includes(stock(item));
+}
+// "Disponible" = lo que realmente puedes usar hoy: hay unidades y no está vencido.
+function isAvailable(item){
+  return Number(item.cantidad) > 0 && expiration(item) !== 'expired';
+}
+function animateCount(id, value){
+  const node = byId(id); if(!node) return;
+  const previous = node.textContent;
+  node.textContent = value;
+  if(String(previous) !== String(value)){
+    node.classList.remove('count-pop');
+    void node.offsetWidth;
+    node.classList.add('count-pop');
+  }
+}
 function updateSummary(){
   const expired = inventory.filter(i => expiration(i) === 'expired').length;
   const soon = inventory.filter(i => expiration(i) === 'soon').length;
   const low = inventory.filter(i => ['low','out'].includes(stock(i))).length;
-  const available = inventory.filter(i => stock(i) === 'available').length;
-  byId('count-expired').textContent = expired; byId('count-soon').textContent = soon; byId('count-low').textContent = low;
-  byId('count-total').textContent = inventory.length; byId('count-available').textContent = available; byId('count-attention').textContent = expired + soon + low;
+  byId('count-expired').textContent = expired;
+  byId('count-soon').textContent = soon;
+  byId('count-low').textContent = low;
+  animateCount('count-total', inventory.length);
+  animateCount('count-available', inventory.filter(isAvailable).length);
+  animateCount('count-attention', inventory.filter(needsAttention).length);
 }
 function matchStatus(item, filter){ if(!filter) return true; if(filter === 'expired' || filter === 'soon') return expiration(item) === filter; if(filter === 'low') return ['low','out'].includes(stock(item)); return stock(item) === 'available' && expiration(item) === 'current'; }
 function renderInventory(){
@@ -78,7 +100,7 @@ function renderPlus(){
   const list = byId('history-list'); if(!history.length){ list.innerHTML = '<li>Aún no hay cambios registrados.</li>'; return; }
   list.innerHTML = history.slice(0,4).map(item => `<li>${escapeHtml(item.message)}<span class="history-time">${new Intl.DateTimeFormat('es-CO',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(item.at)}</span></li>`).join('');
 }
-function renderAll(){ updateSummary(); renderInventory(); renderChecklist(); renderPlus(); syncDemoUI(); }
+function renderAll(){ updateSummary(); renderInventory(); renderChecklist(); renderPlus(); syncDemoUI(); document.dispatchEvent(new CustomEvent('botiquin:cambio')); }
 function closeRecentPanel(){ const panel = byId('recent-panel'); if(!panel) return; panel.classList.remove('is-open'); panel.setAttribute('aria-hidden', 'true'); }
 function activateTab(tab, remember = true){
   if(!byId(`panel-${tab}`)) return;
