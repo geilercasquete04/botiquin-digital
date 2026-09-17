@@ -1,0 +1,248 @@
+/* ============================================================
+   Botiquín Digital — capa "app"
+   Se carga después de botiquin-plus.css. No toca el diseño de
+   escritorio: solo agrega la barra de pestañas, el botón
+   flotante, el formulario tipo hoja y el botón de instalación.
+   ============================================================ */
+
+.app-tabbar,
+.fab,
+.ios-tip { display: none; }
+
+/* Corrección: .rx-form declara display:flex, lo que anulaba el
+   atributo [hidden] y dejaba el formulario siempre visible. */
+.rx-form[hidden] { display: none; }
+
+/* Botón instalar (visible en escritorio dentro de la barra lateral) */
+.install-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 9px 10px;
+  border: 1px solid rgba(232, 246, 246, .22);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .07);
+  color: #eafaf8;
+  font-size: .78rem;
+  font-weight: 700;
+}
+.install-btn svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.install-btn:hover { background: rgba(255, 255, 255, .14); }
+.install-btn[hidden] { display: none; }
+
+@media (max-width: 800px) {
+
+  /* ---- Barra superior de la app ---- */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: auto;
+    min-height: 58px;
+    padding: calc(9px + env(safe-area-inset-top)) max(15px, env(safe-area-inset-right)) 9px max(15px, env(safe-area-inset-left));
+    align-items: center;
+  }
+  .brand { display: flex; }
+  .demo-mode { margin-left: auto; }
+
+  .install-btn {
+    width: auto;
+    margin: 0 0 0 auto;
+    padding: 6px 10px;
+    font-size: .7rem;
+    border-radius: 999px;
+    background: #2dc2b5;
+    border-color: transparent;
+    color: #04262a;
+  }
+  .install-btn + .demo-mode { margin-left: 10px; }
+
+  /* ---- Contenido: espacio para la barra inferior ---- */
+  .content {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+
+  /* El botón del encabezado se reemplaza por el flotante */
+  .title-line > .btn { display: none; }
+
+  /* ---- Barra de pestañas inferior ---- */
+  .app-tabbar {
+    position: fixed;
+    z-index: 20;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: stretch;
+    background: rgba(255, 255, 255, .94);
+    backdrop-filter: saturate(150%) blur(14px);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -6px 22px rgba(12, 38, 48, .09);
+    padding: 6px max(10px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  }
+  .app-tabbar .app-tab {
+    flex: 1;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 3px;
+    min-height: 52px;
+    padding: 6px 4px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--muted);
+    font-size: .66rem;
+    font-weight: 650;
+    box-shadow: none;
+    transition: color .18s, background .18s;
+  }
+  .app-tabbar .app-tab svg { width: 22px; height: 22px; flex: none; }
+  .app-tabbar .app-tab span { display: block; font-size: .66rem; }
+  .app-tabbar .app-tab:active { background: var(--hover); }
+  .app-tabbar .app-tab.is-active {
+    color: var(--accent);
+    font-weight: 800;
+    background: var(--accent-soft);
+    box-shadow: none;
+  }
+  .app-tabbar .app-tab[data-tab="plus"].is-active {
+    color: var(--plus);
+    background: var(--plus-soft);
+  }
+
+  /* ---- Botón flotante para agregar ---- */
+  .fab {
+    position: fixed;
+    z-index: 21;
+    right: max(18px, env(safe-area-inset-right));
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border: 0;
+    border-radius: 18px;
+    color: #fff;
+    background: linear-gradient(140deg, var(--accent), var(--accent-dark));
+    box-shadow: 0 12px 24px rgba(10, 99, 95, .34);
+    transition: transform .16s ease, opacity .16s ease;
+  }
+  .fab svg { width: 24px; height: 24px; }
+  .fab:active { transform: scale(.94); }
+  .fab[hidden] { display: none; }
+
+  /* ---- Formulario como hoja deslizante ---- */
+  .rx-form:not([hidden]) {
+    position: fixed;
+    z-index: 30;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    max-height: 88vh;
+    overflow-y: auto;
+    margin: 0;
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    padding: 16px 18px calc(24px + env(safe-area-inset-bottom));
+    background: #fff;
+    box-shadow: 0 -18px 46px rgba(5, 19, 26, .26);
+    animation: hoja-arriba .24s ease;
+  }
+  .rx-form:not([hidden])::before {
+    content: "";
+    display: block;
+    width: 38px;
+    height: 4px;
+    margin: 0 auto 14px;
+    border-radius: 5px;
+    background: #cddad9;
+  }
+  .rx-form .field input,
+  .rx-form .field select { padding: 11px 10px; font-size: 16px; }
+  .rx-form__actions {
+    position: sticky;
+    bottom: calc(-24px - env(safe-area-inset-bottom));
+    margin: 4px -18px calc(-24px - env(safe-area-inset-bottom));
+    padding: 12px 18px calc(18px + env(safe-area-inset-bottom));
+    background: #fff;
+    border-top: 1px solid var(--border);
+  }
+  .rx-form__actions .btn { flex: 1; padding: 13px 15px; }
+
+  .form-shade {
+    position: fixed;
+    z-index: 29;
+    inset: 0;
+    background: rgba(5, 19, 26, .45);
+    backdrop-filter: blur(2px);
+    animation: fade-in .2s ease;
+  }
+  .form-shade[hidden] { display: none; }
+
+  @keyframes hoja-arriba {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  /* ---- Aviso de instalación en iPhone ---- */
+  .ios-tip {
+    position: fixed;
+    z-index: 25;
+    left: 14px;
+    right: 14px;
+    bottom: calc(86px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 15px;
+    border-radius: 14px;
+    background: #0b222c;
+    color: #eafaf8;
+    box-shadow: 0 14px 30px rgba(5, 19, 26, .3);
+  }
+  .ios-tip[hidden] { display: none; }
+  .ios-tip p { font-size: .74rem; color: rgba(234, 250, 248, .78); line-height: 1.45; }
+  .ios-tip strong { display: block; font-size: .82rem; color: #fff; margin-bottom: 2px; }
+  .ios-tip em { font-style: normal; color: #6fd8cc; font-weight: 700; }
+  .ios-tip button {
+    margin-left: auto;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 11px;
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* El toast queda por encima de la barra de pestañas */
+  .toast {
+    left: 14px;
+    right: 14px;
+    max-width: none;
+    bottom: calc(148px + env(safe-area-inset-bottom));
+    text-align: center;
+  }
+}
+
+/* Sensación nativa cuando la app ya está instalada */
+body.is-standalone { overscroll-behavior-y: none; }
+body.is-standalone .app-tabbar .app-tab,
+body.is-standalone .fab,
+body.is-standalone .data-row,
+body.is-standalone .plan-card,
+body.is-standalone .recent-card { -webkit-tap-highlight-color: transparent; }
+body.is-standalone .install-btn { display: none !important; }
+
+@media (hover: none) {
+  .btn:hover,
+  .plan-card:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
