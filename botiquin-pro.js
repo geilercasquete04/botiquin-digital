@@ -18,9 +18,29 @@
   };
   const guardar = (clave, valor) => localStorage.setItem(clave, JSON.stringify(valor));
 
+  /* =========================================================
+     Búsqueda: sin tildes y por inicio de palabra, para que
+     "tos" no encuentre "adultos" ni "productos".
+     ========================================================= */
+  function normalizar(texto) {
+    return String(texto ?? '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase();
+  }
+  function coincideBusqueda(texto, consulta) {
+    const q = normalizar(consulta).trim();
+    if (!q) return true;
+    const t = normalizar(texto);
+    return q.split(/\s+/).every(token => {
+      const escapado = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return new RegExp('(^|[^a-z0-9])' + escapado, 'i').test(t);
+    });
+  }
+
   let tratamientos = cargar(TX_KEY, []);
   let registro = cargar(LOG_KEY, {});
-  let prefs = { tema: 'auto', notificaciones: false, ...cargar(PREFS_KEY, {}) };
+  let prefs = { tema: 'auto', notificaciones: false, unlocked: false, ...cargar(PREFS_KEY, {}) };
+  const CLAVE_PLUS = '1234';
 
   const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   const temporizadores = [];
@@ -340,9 +360,9 @@
   function renderDiccionario() {
     const caja = byId('dic-results');
     if (!caja) return;
-    const q = byId('dic-search').value.trim().toLocaleLowerCase();
+    const q = byId('dic-search').value;
     const lista = DICCIONARIO.filter(m =>
-      !q || [m.n, m.cat, m.para, ...m.otros].join(' ').toLocaleLowerCase().includes(q)
+      coincideBusqueda([m.n, m.cat, m.para, ...m.otros].join(' '), q)
     );
     byId('dic-count').textContent = `${lista.length} de ${DICCIONARIO.length}`;
     caja.innerHTML = lista.length
@@ -487,12 +507,12 @@
   const renderInventarioOriginal = renderInventory;
   renderInventory = function () {
     const rows = byId('inv-rows');
-    const query = byId('search-input').value.trim().toLocaleLowerCase();
+    const query = byId('search-input').value;
     const filtro = byId('status-filter').value;
     const lista = inventory
       .filter(item => {
-        const texto = [item.nombre, item.categoria, item.ubicacion, item.forma, item.uso].join(' ').toLocaleLowerCase();
-        return texto.includes(query) && matchStatus(item, filtro);
+        const texto = [item.nombre, item.categoria, item.ubicacion, item.forma, item.uso, item.notas].join(' ');
+        return coincideBusqueda(texto, query) && matchStatus(item, filtro);
       })
       .sort((a, b) => (a.vencimiento || '9999-12-31').localeCompare(b.vencimiento || '9999-12-31'));
 
@@ -573,6 +593,91 @@
   }
 
   /* =========================================================
+     Candado de Botiquín Plus
+     Tomas y Diccionario piden la contraseña la primera vez.
+     ========================================================= */
+  function plusDesbloqueado() { return prefs.unlocked === true; }
+
+  function pintarCandado() {
+    document.body.classList.toggle('plus-desbloqueado', plusDesbloqueado());
+    const interruptor = byId('plus-lock-toggle');
+    if (interruptor) {
+      interruptor.classList.toggle('is-on', plusDesbloqueado());
+      interruptor.setAttribute('aria-checked', String(plusDesbloqueado()));
+    }
+    const etiqueta = byId('plus-lock-label');
+    if (etiqueta) etiqueta.textContent = plusDesbloqueado() ? 'Activas' : 'Bloqueadas';
+    renderTarjetaCandado();
+  }
+
+  function renderTarjetaCandado() {
+    const caja = byId('plus-lock-card');
+    if (!caja) return;
+    caja.innerHTML = plusDesbloqueado()
+      ? `<div class="lock-card lock-card--on">
+          <div class="lock-card__icon"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div><h2>Funciones Plus activas</h2><p>Tienes acceso a Tomas y alarmas y al Diccionario de medicamentos en este dispositivo.</p></div>
+          <button class="btn btn-ghost btn-sm" type="button" id="lock-card-off">Bloquear de nuevo</button>
+        </div>`
+      : `<div class="lock-card">
+          <div class="lock-card__icon"><svg viewBox="0 0 24 24" fill="none"><rect x="5.5" y="10.5" width="13" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          <div><h2>Desbloquea Tomas y alarmas, y el Diccionario</h2><p>Escribe la contraseña de Botiquín Plus para activarlas en este dispositivo.</p></div>
+          <button class="btn btn-primary btn-sm" type="button" id="lock-card-btn">Desbloquear</button>
+        </div>`;
+  }
+
+  function abrirCandadoModal() {
+    byId('lock-shade').hidden = false;
+    byId('lock-modal').hidden = false;
+    byId('lock-error').hidden = true;
+    const campo = byId('lock-password');
+    campo.value = '';
+    setTimeout(() => campo.focus(), 60);
+  }
+
+  function cerrarCandadoModal() {
+    byId('lock-shade').hidden = true;
+    byId('lock-modal').hidden = true;
+  }
+
+  function intentarDesbloquear(evento) {
+    evento.preventDefault();
+    const escrita = byId('lock-password').value.trim();
+    if (escrita === CLAVE_PLUS) {
+      prefs.unlocked = true;
+      guardar(PREFS_KEY, prefs);
+      cerrarCandadoModal();
+      pintarCandado();
+      showToast('Funciones Plus activadas en este dispositivo.');
+    } else {
+      byId('lock-error').hidden = false;
+      byId('lock-password').value = '';
+      byId('lock-password').focus();
+    }
+  }
+
+  function bloquearPlus() {
+    prefs.unlocked = false;
+    guardar(PREFS_KEY, prefs);
+    if (['tomas', 'diccionario'].includes(activeTab)) activateTab('plus');
+    pintarCandado();
+    showToast('Funciones Plus bloqueadas.');
+  }
+
+  // Envuelve la navegación original: si el destino está bloqueado,
+  // muestra la pestaña Plus en su lugar en vez de abrir la función.
+  const activateTabOriginal = activateTab;
+  activateTab = function (tab, remember = true) {
+    if (['tomas', 'diccionario'].includes(tab) && !plusDesbloqueado()) {
+      activateTabOriginal('plus', remember);
+      showToast('Esa función es parte de Botiquín Plus. Desbloquéala con la contraseña.');
+      return;
+    }
+    activateTabOriginal(tab, remember);
+    if (tab === 'diccionario') renderDiccionario();
+  };
+
+  /* =========================================================
      Eventos
      ========================================================= */
   function conectar() {
@@ -651,6 +756,13 @@
     });
     byId('status-filter').addEventListener('change', sincronizarChips);
 
+    // botiquin-plus.js ató el buscador y el filtro a la función
+    // original (por referencia directa), así que quedan con la
+    // búsqueda ingenua de antes. Los volvemos a atar aquí para que
+    // usen siempre la versión vigente de renderInventory.
+    byId('search-input').addEventListener('input', () => renderInventory());
+    byId('status-filter').addEventListener('change', () => renderInventory());
+
     document.querySelector('.date-shortcuts').addEventListener('click', e => {
       const boton = e.target.closest('[data-meses]');
       if (boton) fechaRelativa(Number(boton.dataset.meses));
@@ -660,12 +772,25 @@
       if (e.target.closest('#copy-shop')) copiarCompras();
       if (e.target.closest('#backup-out')) descargarRespaldo();
       if (e.target.closest('#backup-in')) restaurarRespaldo();
+      if (e.target.closest('#lock-card-btn')) abrirCandadoModal();
+      if (e.target.closest('#lock-card-off')) bloquearPlus();
       const tema = e.target.closest('[data-tema]');
       if (tema) {
         prefs.tema = tema.dataset.tema;
         guardar(PREFS_KEY, prefs);
         aplicarTema(); renderExtras();
       }
+    });
+
+    byId('plus-lock-toggle').addEventListener('click', () => {
+      if (plusDesbloqueado()) bloquearPlus();
+      else abrirCandadoModal();
+    });
+    byId('lock-form').addEventListener('submit', intentarDesbloquear);
+    byId('lock-cancel').addEventListener('click', cerrarCandadoModal);
+    byId('lock-shade').addEventListener('click', cerrarCandadoModal);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !byId('lock-modal').hidden) cerrarCandadoModal();
     });
 
     document.addEventListener('botiquin:cambio', () => { renderExtras(); });
@@ -679,6 +804,7 @@
      Arranque
      ========================================================= */
   aplicarTema();
+  pintarCandado();
   prepararFormulario();
   conectar();
   renderInventory();

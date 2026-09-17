@@ -89,3 +89,18 @@ hace falta un servidor de notificaciones push o una app nativa.
 
 Abre `botiquin-pro-data.js`. Cada entrada tiene el mismo formato y puedes
 agregar las que quieras siguiendo el patrón.
+
+## Candado de Botiquín Plus
+
+Tomas y alarmas, y el Diccionario, ahora piden contraseña la primera vez.
+La contraseña de demostración es **1234**. Se activa con el interruptor
+"Funciones Plus" en el menú lateral (o desde la tarjeta morada del panel
+Plus, visible también en el celular) y queda recordada en el dispositivo
+hasta que alguien la bloquee de nuevo. Si quieres cambiar la contraseña,
+edita la constante `CLAVE_PLUS` al inicio de `botiquin-pro.js`.
+
+## Buscador
+
+El buscador del inventario y del diccionario ahora ignora tildes y
+mayúsculas, y solo encuentra coincidencias que empiezan una palabra —
+así "tos" ya no aparece dentro de "adultos" o "productos".

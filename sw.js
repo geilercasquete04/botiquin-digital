@@ -1,7 +1,7 @@
 /* Service worker de Botiquín Digital.
    Guarda los archivos de la app para que abra sin conexión.
    Sube el número de versión cada vez que publiques cambios. */
-const VERSION = 'botiquin-v2';
+const VERSION = 'botiquin-v3';
 const ARCHIVOS = [
   './',
   './index.html',

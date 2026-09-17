@@ -131,6 +131,85 @@
 .day-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .day-list .day-chip { padding: 6px 10px; font-size: .72rem; }
 
+/* ---------- Candado de Botiquín Plus ---------- */
+.lock-icon {
+  width: 13px; height: 13px; flex: 0 0 13px;
+  margin-left: auto;
+  color: rgba(232, 246, 246, .5);
+}
+.plus-desbloqueado .lock-icon { display: none; }
+
+.plus-lock { margin-top: 9px; }
+.switch--lock.is-on { background: #7462d7; }
+
+.lock-card {
+  display: flex; align-items: center; gap: 14px;
+  grid-column: 1 / -1;
+  border: 1px solid #e5dffd;
+  background: linear-gradient(95deg, #f8f6ff, #f3f0ff);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: 0 8px 20px rgba(57, 39, 135, .06);
+}
+.lock-card__icon {
+  flex: 0 0 auto;
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: 11px;
+  background: var(--plus-soft);
+  color: var(--plus);
+}
+.lock-card__icon svg { width: 20px; height: 20px; }
+.lock-card h2 { font-size: .89rem; margin-bottom: 3px; }
+.lock-card p { font-size: .78rem; color: var(--muted); }
+.lock-card .btn { margin-left: auto; flex: 0 0 auto; white-space: nowrap; }
+.lock-card--on { border-color: #d6efe3; background: linear-gradient(95deg, #f5fbf8, #eff9f3); }
+.lock-card--on .lock-card__icon { background: var(--success-bg); color: var(--success); }
+
+.lock-modal {
+  position: fixed; z-index: 40;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(360px, calc(100vw - 32px));
+  background: #fff;
+  border-radius: 16px;
+  padding: 26px 24px;
+  box-shadow: 0 24px 60px rgba(5, 19, 26, .3);
+  animation: fade-in .2s ease;
+}
+.lock-modal__icon {
+  width: 44px; height: 44px; margin-bottom: 12px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  background: var(--plus-soft); color: var(--plus);
+}
+.lock-modal__icon svg { width: 22px; height: 22px; }
+.lock-modal h2 { font-size: 1.05rem; margin-bottom: 5px; }
+.lock-modal p { font-size: .8rem; color: var(--muted); margin-bottom: 15px; }
+.lock-modal .field { margin-bottom: 6px; }
+.lock-modal .field input { text-align: center; letter-spacing: .3em; font-size: 1.1rem; }
+.lock-modal__error { color: var(--danger); font-size: .77rem; margin: 6px 2px 4px; }
+.lock-modal .rx-form__actions { margin-top: 14px; }
+#lock-shade { z-index: 39; }
+
+@media (max-width: 800px) {
+  /* El interruptor de Funciones Plus solo vive en el sidebar de
+     escritorio y en la tarjeta del panel Plus; en el encabezado
+     móvil, compacto, no cabe bien junto al de publicidad. */
+  .plus-lock { display: none; }
+
+  .app-tab { position: relative; }
+  .app-tab .lock-icon {
+    position: absolute; top: 4px; right: 22%;
+    margin-left: 0;
+    color: var(--soft);
+    background: var(--surface);
+    border-radius: 50%;
+  }
+  .lock-card { flex-wrap: wrap; }
+  .lock-card .btn { margin-left: 0; width: 100%; }
+}
+
 .tab-badge {
   display: inline-grid; place-items: center;
   min-width: 17px; height: 17px; padding: 0 4px;
@@ -191,6 +270,9 @@
 .shop-list li:last-child { border-bottom: 0; }
 .shop-list span { color: var(--muted); font-size: .72rem; text-align: right; flex: 0 0 auto; }
 .theme-picker { display: flex; gap: 7px; margin-top: 14px; flex-wrap: wrap; }
+
+/* Ahora solo quedan 2 planes de demostración (se quitó el Familiar). */
+.plans-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 620px; }
 
 /* ============================================================
    Móvil
@@ -309,6 +391,13 @@ body.tema-oscuro .ad-slot strong { color: #d6ece5; }
 body.tema-oscuro .ad-slot__action { background: var(--surface); border-color: #2a4a42; color: #6fd4c2; }
 body.tema-oscuro .install-btn { background: var(--accent); color: #03201d; }
 body.tema-oscuro .form-shade { background: rgba(0, 0, 0, .6); }
+body.tema-oscuro .lock-modal { background: var(--surface); }
+body.tema-oscuro .lock-modal .field input { background: #0e1a1f; color: var(--ink); border-color: var(--border); }
+body.tema-oscuro .lock-card { background: linear-gradient(95deg, #1c1836, #221d40); border-color: #322c57; }
+body.tema-oscuro .lock-card--on { background: linear-gradient(95deg, #0f2620, #102b23); border-color: #1e4536; }
+body.tema-oscuro .lock-icon { color: rgba(232, 246, 246, .35); }
+body.tema-oscuro .setting-line { border-top-color: var(--border); }
+body.tema-oscuro .plus-card--notice { background: linear-gradient(160deg, var(--surface), var(--surface)); border-color: var(--border); }
 
 /* El aviso flotante invertía sus colores en modo oscuro */
 body.tema-oscuro .toast { background: #24363d; color: var(--ink); }
